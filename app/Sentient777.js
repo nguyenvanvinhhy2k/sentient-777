@@ -33,8 +33,8 @@ const images = [reward1, reward2, reward3, reward4, reward5, reward6, reward7, r
 
 const Sentient777 = () => {
   const [spinning, setSpinning] = useState(false);
-  const [popupStep, setPopupStep] = useState(2);
-  const [winnerName, setWinnerName] = useState('adam');
+  const [popupStep, setPopupStep] = useState(0);
+  const [winnerName, setWinnerName] = useState('');
   const reelsRef = useRef([]);
   const finalSymbols = useRef([]);
   const certRef = useRef(null);
