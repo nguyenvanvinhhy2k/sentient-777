@@ -42,7 +42,7 @@ const Sentient777 = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [spinCount, setSpinCount] = useState(0);
 
-  const [playSpin, { stop }] = useSound("https://www.myinstants.com/media/sounds/nhac-xo-so.mp3", {
+  const [playSpin, { stop }] = useSound("https://chiennvtodolist.runasp.net/api/FileAudio/get/1c44c052-8c01-4619-bc97-793c211f3d2e.mp3", {
     loop: true,
     from: [ 3000, 100000],
     volume: 0.8,  
