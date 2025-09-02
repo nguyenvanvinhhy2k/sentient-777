@@ -40,6 +40,7 @@ const Sentient777 = () => {
   const certRef = useRef(null);
   const [currentImage, setCurrentImage] = useState(images[0]);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [spinCount, setSpinCount] = useState(0);
 
   const [playSpin, { stop }] = useSound("https://www.myinstants.com/media/sounds/nhac-xo-so.mp3", {
     loop: true,
@@ -125,46 +126,74 @@ const Sentient777 = () => {
     window.open(url, "_blank");
   };
 
-  const spin = () => {
-    if (spinning) return;
-    setSpinning(true);
-    setPopupStep(0);
-    if (!isPlaying) {
-      playSpin();
-    }
-    reelsRef.current.forEach((reel, i) => {
-      if (!reel) return;
+ // đảm bảo bạn có: const [spinCount, setSpinCount] = useState(0);
+// và reelsRef.current là array 3 reel DOM nodes
+const spin = () => {
+  if (spinning) return;
 
-      reel.style.transition = "none";
-      reel.style.transform = "translateY(0)";
-      reel.classList.add("animate-spinReel");
+  setSpinning(true);
+  setPopupStep(0);
 
-      setTimeout(() => {
-        reel.classList.remove("animate-spinReel");
+  const nextCount = (typeof spinCount === "number" ? spinCount + 1 : 1);
+  setSpinCount(nextCount);
 
-        const finalIndex = Math.floor(Math.random() * symbols.length);
-        reel.style.transition = "transform 1s ease-out";
-        const itemHeight = window.innerWidth <= 767 ? 61 : 93; 
-        reel.style.transform = `translateY(-${finalIndex * itemHeight}px)`;
+  const isForced = nextCount > 15;
+  const forcedIndex = isForced ? Math.floor(Math.random() * symbols.length) : -1;
 
-        finalSymbols.current[i] = symbols[finalIndex];
+  if (!isPlaying) {
+    playSpin();
+  }
 
-        if (i === 2) {
-          setTimeout(() => {
-            setSpinning(false);
+  const firstReel = reelsRef.current.find(Boolean);
+  const sampleItem = firstReel?.querySelector(".symbol-item");
+  const itemHeight = sampleItem ? sampleItem.offsetHeight : (window.innerWidth <= 767 ? 61 : 93);
 
-            if (
-              finalSymbols.current[0] === finalSymbols.current[1] &&
-              finalSymbols.current[1] === finalSymbols.current[2]
-            ) {
-              setPopupStep(1); // mở popup nhập tên
-              playWin();
-            }
-          }, 1200);
-        }
-      }, 800 + i * 500);
-    });
-  };
+  reelsRef.current.forEach((reel, i) => {
+    if (!reel) return;
+
+    reel.style.transition = "none";
+    reel.style.transform = "translateY(0)";
+    reel.classList.add("animate-spinReel");
+
+    setTimeout(() => {
+      reel.classList.remove("animate-spinReel");
+
+      const finalIndex = isForced ? forcedIndex : Math.floor(Math.random() * symbols.length);
+
+      reel.style.transition = "transform 1s ease-out";
+      reel.style.transform = `translateY(-${finalIndex * itemHeight}px)`;
+
+      finalSymbols.current[i] = symbols[finalIndex];
+
+      if (i === reelsRef.current.length - 1) {
+        setTimeout(() => {
+          setSpinning(false);
+
+
+          if (isForced) {
+            const forcedSymbol = symbols[forcedIndex];
+            finalSymbols.current = [forcedSymbol, forcedSymbol, forcedSymbol];
+            setPopupStep(1);
+            playWin();
+            setSpinCount(0);
+            return;
+          }
+
+          const isWin =
+            finalSymbols.current[0] === finalSymbols.current[1] &&
+            finalSymbols.current[1] === finalSymbols.current[2];
+
+          if (isWin) {
+            setPopupStep(1);
+            playWin();
+            setSpinCount(0);
+          }
+        }, 1200);
+      }
+    }, 800 + i * 500);
+  });
+};
+
 
   return (
     <>
@@ -281,7 +310,7 @@ const Sentient777 = () => {
                     Share on X
                   </button>
                   <button
-                    onClick={() => (setPopupStep(0), stop(), setWinnerName(""))}
+                    onClick={() => (setPopupStep(0), stop(), setWinnerName(""), setIsPlaying(false))}
                     className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 duration-300 hover:scale-[1.05]"
                   >
                     Close
