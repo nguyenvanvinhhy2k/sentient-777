@@ -83,7 +83,7 @@ const Sentient777 = () => {
     const target = clone.querySelector("#winner");
     if (target) {
       const parent = target.offsetParent || clone;
-      const pRect = parent.getBoundingClientRect();
+      parent.getBoundingClientRect();
   
 
       const curPos = window.getComputedStyle(target).position;
